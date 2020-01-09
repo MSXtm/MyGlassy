@@ -67,41 +67,37 @@ file_put_contents('user.txt',$add_user);
 }
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'🌐به ربات ساخت دکمه شیشه ایي خوب آمدید.
+'text'=>'سلام دوست عزیز، شما میتوانید از این ربات برای ساخت دکمه شیشه ای استفاده کنید.
 
-🛡این ربات به شما این امکان را میدهد که براي کانال و گروه خود یک بنر با عکس و دکمه شیشه ایي ایجاد کنید🛡
-➖➖➖➖➖➖➖➖➖➖➖➖
-⌨️ براي ساخت ليست شيشه ايي كامند /new را بفرستید.
-➖ /new
+ - /new : ساخت لیست شیشه ای
 
-📨براي ساخت پیام مخفي کامند /alert را بفرستيد.
-➖ /alert
+ - /alert : پیام مخفی
 
-📟براي ساخت پیام مچگیر کامند /hid رو بفرستید.
-➖ /hid
+ - /hid : پیام مخفی با ارسال مشخصات کاربر مشاهده گر
 
-⚙️براي بستن بنر هاي ساخته شده دستور /close را بفرستید.
-➖ /close
+ - /close : حذف پست ساخته شده
 
-⏺ براي لغو عمليات دستور /cancel رو بفرستید.
-➖ /cancel
+ - /var : متغییر های قابل استفاده
 
-➖➖➖➖➖➖➖➖➖➖➖➖
-⏺متغییر هاي که میتوانید در پیام هایتان استفاده کنید:
-
-🆔 متغییرِ یوزرنیم کسي كه كليك كرده است:
-[*USERNAME*]
-
-ℹ️متغییرِ آیدي عددي كسي كه كليك کرده است:
-[*USERID*]
-
-🔠متغییرِ نام كسي كه کلیک کرده است:
-[*FIRST_NAME*]
-
-🔤متغییرِ نام خانوادگي كسي كه کلیک کرده است:
-[*LAST_NAME*]
+ - /cancel : لغو عملیات فعلی
 
 @MSXtm / Feel the new things...',
+'reply_markup'=>json_encode([
+'remove_keyboard'=>true])]);
+}elseif($msg->text=='/var'||$msg->text=='/Var'){
+$data['users'][$msg->chat->id]['command'] = 'menu';
+send('sendMessage',[
+'chat_id'=>$msg->chat->id,
+'text'=>'متغییرهای دردسترس برای شما
+
+<code>[*FIRST_NAME*]</code> : نام شخص کلیک کننده
+
+<code>[*LAST_NAME*]</code> : نام خانوادگی شخص کلیک کننده
+
+<code>[*USERNAME*]</code> : نام کاربری شخص کلیک کننده
+
+<code>[*USERID*]</code> : شناسه عددی شخص کلیک کننده',
+'parse_mode'=>"html",
 'reply_markup'=>json_encode([
 'remove_keyboard'=>true])]);
 }elseif($inln->id){
@@ -113,9 +109,9 @@ send('answerInlineQuery',[
 'id'=>base64_encode(rand(5,555)),
 'title'=>'alert - '.$data['code'][$inln->query]['text'],
 'input_message_content'=>[
-'message_text'=>'شما از '.$data['code'][$inln->query]['from']['first_name'].' یک پیام مخفی دارید📨'],
+'message_text'=>'کاربر '.$data['code'][$inln->query]['from']['first_name'].' برای شما یک پیام مخفی دارد.'],
 'reply_markup'=>['inline_keyboard'=>[
-[['text'=>'خواندن💭','callback_data'=>'alert_'.$inln->query.'_a']]
+[['text'=>'خواندن پیام','callback_data'=>'alert_'.$inln->query.'_a']]
 ]]
 ]])
 ]);
@@ -127,9 +123,24 @@ send('answerInlineQuery',[
 'id'=>base64_encode(rand(5,555)),
 'title'=>'hid - '.$data['code'][$inln->query]['text'],
 'input_message_content'=>[
-'message_text'=>'شما از '.$data['code'][$inln->query]['from']['first_name'].' یک پیام مخفی دارید📨'],
+'message_text'=>'کاربر '.$data['code'][$inln->query]['from']['first_name'].' برای شما یک پیام مخفی دارد.'],
 'reply_markup'=>['inline_keyboard'=>[
-[['text'=>'خواندن💭','callback_data'=>'hid_'.$inln->query.'_a']]
+[['text'=>'خواندن پیام','callback_data'=>'hid_'.$inln->query.'_a']]
+]]
+]])
+]);
+}elseif($inln->id){
+if($data['code'][$inln->query]['type']=='alert'){
+send('answerInlineQuery',[
+'inline_query_id'=>$inln->id,
+'results'=>json_encode([[
+'type'=>'article',
+'id'=>base64_encode(rand(5,555)),
+'title'=>'alert - '.$data['code'][$inln->query]['text'],
+'input_message_content'=>[
+'message_text'=>'کاربر '.$data['code'][$inln->query]['from']['first_name'].' برای شما یک پیام مخفی دارد.'],
+'reply_markup'=>['inline_keyboard'=>[
+[['text'=>'خواندن پیام','callback_data'=>'alert_'.$inln->query.'_a']]
 ]]
 ]])
 ]);
@@ -301,9 +312,9 @@ send('answerInlineQuery',[
 'id'=>base64_encode(rand(5,555)),
 'title'=>'یافت نشد!',
 'input_message_content'=>['message_text'=>'کد '.$inln->query.' یافت نشد!
-①کد اشتباه است
-②مشکلی پیش امده است
-لطفا بعدا دوباره امتحان کنید و یا کد درست را بدید']
+۱. کد نادرست است.
+۲. خطایی از طرف سیستم رخ داده است.
+لطفا مجدد امتحان کنید.']
 ]])]);
 }}else if($clbk->id==true && $clbk->inline_message_id==true){
 $code = explode('_',$clbk->data)[1];
@@ -317,11 +328,11 @@ send('editMessageReplyMarkup',[
 [['text'=>'closed!','callback_data'=>'close_close_close']]]])]);
 send('answerCallbackQuery',[
 'callback_query_id'=>$clbk->id,
-'text'=>'این دکمه شیشه ای بسته شده است!']);
+'text'=>'این پست حذف شده است!']);
 }elseif($type=='close'){
 send('answerCallbackQuery',[
 'callback_query_id'=>$clbk->id,
-'text'=>'این دکمه شیشه ای بسته شده است!']);
+'text'=>'این پست حذف شده است!']);
 }elseif($type=='alert'){
 $data['code'][$code]['click']++;
 if($data['code'][$code]['views']['id'][$clbk->from->id]==false){
@@ -484,12 +495,12 @@ send('answerCallbackQuery',[
 'show_alert'=>true]);
 send('sendMessage',[
 'chat_id'=>$data['code'][$code]['from']['id'],
-'text'=>'کاربری رو دکمه شیشه ای مچگیر کد '.$code.' کلیک کرد.✔
-نام : '.$clbk->from->first_name.'
-ایدی : '.$clbk->from->id.'
+'text'=>'مچ کاربر جدیدی گرفته شد. ['.$code.']
+شناسه: '.$clbk->from->id.'
+نام: '.$clbk->from->first_name.'
 '.
-ifstr($clbk->from->last_name,'نام خانوادگی : '.$clbk->from->last_name.'
-','').ifstr($clbk->from->username,'یوزرنیم : @'.$clbk->from->username.'
+ifstr($clbk->from->last_name,'نام خانوادگی: '.$clbk->from->last_name.'
+','').ifstr($clbk->from->username,'نام کاربری: @'.$clbk->from->username.'
 ','').ifstr($data['users'][$clbk->from->id]['command'],'کاربر در ربات حضور دارد','کاربر داخل این ربات عضو نیست')]);
 }elseif($type=='create'){
 $data['code'][$code]['buttons'][$button]['click']++;
@@ -720,14 +731,14 @@ send('editMessageCaption',[
 $data['users'][$msg->chat->id]['command'] = 'menu';
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'لغو شد✔',
+'text'=>'عملیات بسته شد.',
 'reply_markup'=>json_encode([
 'remove_keyboard'=>true])]);
 }elseif($msg->text=='/close'){
 $data['users'][$msg->chat->id]['command'] = 'close';
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'کد دکمه شیشه ای رو وارد کنید✏']);
+'text'=>'کد پست خودتون رو جهت حذف شدن بفرستید.']);
 }elseif($msg->text&&$data['users'][$msg->chat->id]['command']=='close'){
 if($data['code'][$msg->text]['from']['id']){
 if($data['code'][$msg->text]['from']['id']==$msg->chat->id){
@@ -735,15 +746,15 @@ unset($data['code'][$msg->text]);
 $data['users'][$msg->chat->id]['command'] = 'menu';
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'بسته شد👍']);
+'text'=>'حذف شد.']);
 }else{
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'فقط سازنده این دکمه شیشه ای، میتونه ببندتش که شما نیستین!']);
+'text'=>'پست وجود دارد، اما شما صاحب آن نیستید و نمیتوانید آن را حذف کنید.']);
 }}else{
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'کد دکمه شیشه ای شما اشتباه است!']);
+'text'=>'پست وجود ندارد... دوباره امتحان کنید.']);
 }}elseif($msg->text=='/alert'){
 $data['users'][$msg->chat->id]['command'] = 'alert';
 $data['count'] = $data['count']+rand(1,rand(1,99));
@@ -756,16 +767,16 @@ $data['code'][$code]['from']['username'] = $msg->chat->username;
 $data['users'][$msg->chat->id]['code']  = $code;
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'متن پیام رو وارد کنید✏']);
+'text'=>'متن پیام رو وارد کنید.']);
 }elseif($msg->text&&$data['users'][$msg->chat->id]['command']=='alert'){
 $data['users'][$msg->chat->id]['command'] = 'menu';
 $data['code'][$data['users'][$msg->chat->id]['code']]['text'] = $msg->text;
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'برای ارسال به چت موردنظر، رو دکمه زیر کلیک کنید👌',
+'text'=>'میتوانید پیام مخفی رو از طریق دکمه زیر به گفتگوی موردنظر بفرستید.',
 'reply_markup'=>json_encode([
 'inline_keyboard'=>[
-[['text'=>'ارسال♐','switch_inline_query'=>$data['users'][$msg->chat->id]['code']]]
+[['text'=>'ارسال','switch_inline_query'=>$data['users'][$msg->chat->id]['code']]]
 ]])]);
 }elseif($msg->text=='/hid'){
 $data['users'][$msg->chat->id]['command'] = 'hid';
@@ -779,16 +790,16 @@ $data['code'][$code]['from']['username'] = $msg->chat->username;
 $data['users'][$msg->chat->id]['code']  = $code;
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'متن پیام رو وارد کنید✏']);
+'text'=>'متن پیام رو وارد کنید.']);
 }elseif($msg->text&&$data['users'][$msg->chat->id]['command']=='hid'){
 $data['users'][$msg->chat->id]['command'] = 'menu';
 $data['code'][$data['users'][$msg->chat->id]['code']]['text'] = $msg->text;
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'برای ارسال به چت موردنظر، رو دکمه زیر کلیک کنید👌',
+'text'=>'میتوانید پیام مچ گیر رو از طریق دکمه زیر به گفتگوی موردنظر بفرستید.',
 'reply_markup'=>json_encode([
 'inline_keyboard'=>[
-[['text'=>'ارسال♐','switch_inline_query'=>$data['users'][$msg->chat->id]['code']]]
+[['text'=>'ارسال','switch_inline_query'=>$data['users'][$msg->chat->id]['code']]]
 ]])]);
 }
 elseif($msg->text=='/new'){
@@ -803,7 +814,7 @@ $data['code'][$code]['from']['username'] = $msg->chat->username;
 $data['users'][$msg->chat->id]['code']  = $code;
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'مطلب بالا دکمه هارو ارسال کنید✏ این مطلب میتواند هرچیزی باشد']);
+'text'=>'محتوا رو ارسال کنید.(این محتوا عبارتی هست که بالای دکمه هاست و میتوانید هرچیزی باشد)']);
 }elseif($msg->message_id&&$data['users'][$msg->chat->id]['command']=='new1'){
 if($msg->photo[5]->file_id){
 $data['code'][$data['users'][$msg->chat->id]['code']]['up']['type'] = 'photo';
@@ -853,7 +864,7 @@ $data['code'][$data['users'][$msg->chat->id]['code']]['up']['text'] = $msg->text
 }else{$nook = true;}if($nook){
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'پیام مجاز نیست⛔']);
+'text'=>'محتوا قابل قبول نیست! مجدد امتحان کنید.']);
 }else{
 $data['users'][$msg->chat->id]['command'] = 'new2';
 $data['users'][$msg->chat->id]['btncount'] = 0;
@@ -863,76 +874,77 @@ $data['users'][$msg->chat->id]['button'] = [];
 $data['users'][$msg->chat->id]['btn'] = [];
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'خوبه! حالا باید انتخاب کنی چه دکمه ای میخوای؟',
+'text'=>'نوع دکمه رو مشخص کن:',
 'reply_markup'=>json_encode([
 'keyboard'=>[
-[['text'=>'نمایش اخطارℹ️']],
-[['text'=>'نمایش پیام💬']],
-[['text'=>'باز کردن لینک🌐']],
-[['text'=>'تغییر پیام✏']],
-[['text'=>'دکمه خالی💢']],
-[['text'=>'پیام به شما📤']],
-[['text'=>'اشتراک گذاری♐️']]
+[['text'=>'نمایش اخطار']],
+[['text'=>'نمایش پیام']],
+[['text'=>'بازکردن لینک']],
+[['text'=>'ویرایش پیام']],
+[['text'=>'دکمه بدون محتوا']],
+[['text'=>'پیام به شما']],
+[['text'=>'اشتراک گذاری پست']]
 ],'resize_keyboard'=>true])]);
 }
 }elseif($data['users'][$msg->chat->id]['command']=='new2'){
-if($msg->text=='نمایش اخطارℹ️'){
+if($msg->text=='نمایش اخطار'){
 $data['users'][$msg->chat->id]['btn']['type'] = 'alert1';
 $data['users'][$msg->chat->id]['command'] = 'new3';
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'پیام موردنظر رو بنویسید✏',
+'text'=>'پیام خود را وارد کنید:',
 'reply_markup'=>json_encode([
 'remove_keyboard'=>true])]);
-}elseif($msg->text=='نمایش پیام💬'){
+}elseif($msg->text=='نمایش پیام'){
 $data['users'][$msg->chat->id]['btn']['type'] = 'alert2';
 $data['users'][$msg->chat->id]['command'] = 'new3';
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'پیام موردنظر رو بنویسید✏',
+'text'=>'پیام خود را وارد کنید:',
 'reply_markup'=>json_encode([
 'remove_keyboard'=>true])]);
-}elseif($msg->text=='باز کردن لینک🌐'){
+}elseif($msg->text=='بازکردن لینک'){
 $data['users'][$msg->chat->id]['btn']['type'] = 'url';
 $data['users'][$msg->chat->id]['command'] = 'new4';
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'لینک مورد نظرتونو ارسال کنین✏',
+'text'=>'لینک خود را وارد کنید:',
 'reply_markup'=>json_encode([
 'remove_keyboard'=>true])]);
-}elseif($msg->text=='تغییر پیام✏'){
+}elseif($msg->text=='ویرایش پیام'){
 $data['users'][$msg->chat->id]['btn']['type'] = 'edit';
 $data['users'][$msg->chat->id]['command'] = 'new5';
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'پیام موردنظر رو بفرستین✏',
+'text'=>'پیام خود را وارد کنید:',
 'reply_markup'=>json_encode([
 'remove_keyboard'=>true])]);
-}elseif($msg->text=='دکمه خالی💢'){
+}elseif($msg->text=='دکمه بدون محتوا'){
 $data['users'][$msg->chat->id]['btn']['type'] = 'none';
 $data['users'][$msg->chat->id]['command'] = 'new6';
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'نام دکمه رو ارسال کنید✏',
+'text'=>'نام دکمه را وارد کنید:',
 'reply_markup'=>json_encode([
 'remove_keyboard'=>true])]);
-}elseif($msg->text=='پیام به شما📤'){
+}elseif($msg->text=='پیام به شما'){
 $data['users'][$msg->chat->id]['btn']['type'] = 'send';
 $data['users'][$msg->chat->id]['command'] = 'new7';
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'متن پیام ارسالی رو بنویسید✏',
+'text'=>'متنی که میخواهید با اجرای دکمه توسط کاربر، دریافت کنید را بفرستید:',
 'reply_markup'=>json_encode([
 'remove_keyboard'=>true])]);
-}elseif($msg->text=='اشتراک گذاری♐️'){
+}elseif($msg->text=='اشتراک گذاری پست'){
 $data['users'][$msg->chat->id]['btn']['type'] = 'share';
 $data['users'][$msg->chat->id]['command'] = 'new8';
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'کد دکمه شیشه ای مورد نظر رو وارد کنید و یا اگه میخواید کد همینجا باشه . رو ارسال کنید✏',
+'text'=>'شما میتونید دکمه ای ایجاد کنید تا پستی دیگری که در همین ربات ساخته شده باشد به اشتراک گذاشته شود، یا همین پست به اشتراک گذاشته شود.
+برای پست خارجی، شناسه اون پست و اگه میخواید همین پست باشه، عبارت . را ارسال کنید.',
 'reply_markup'=>json_encode([
 'remove_keyboard'=>true])]);
-}elseif(($msg->text=='پایان ساخت✔'||$msg->text=='/done')&&$data['users'][$msg->chat->id]['buttons']!=[]){
+}elseif(($msg->text=='اتمام کار'||$msg->text=='/done')&&$data['users'][$msg->chat->id]['buttons']!=[]){
 $data['users'][$msg->chat->id]['command'] = 'menu';
 $data['users'][$msg->chat->id]['up'] = [];
 $data['code'][$data['users'][$msg->chat->id]['code']]['keyboard'] = $data['users'][$msg->chat->id]['buttons'];
@@ -940,17 +952,17 @@ send('deleteMessage',[
 'chat_id'=>$msg->chat->id,
 'message_id'=>json_decode(send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'loading...',
+'text'=>'درحال ایجاد کردن...',
 'reply_markup'=>json_encode([
 'remove_keyboard'=>true])]))->result->message_id]);
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'خوب! دکمه هات تکمیل شدن حالا برای ارسالشون، رو دکمه زیر کلیک کن و چت موردنظرتو انتخاب کن👌',
+'text'=>'خب پست شما ایجاد شد، از دکمه زیر برای ارسال به گفتگوی موردنظر استفاده کنید.',
 'reply_markup'=>json_encode([
 'inline_keyboard'=>[
-[['text'=>'ارسال♐','switch_inline_query'=>$data['users'][$msg->chat->id]['code']]]
+[['text'=>'ارسال','switch_inline_query'=>$data['users'][$msg->chat->id]['code']]]
 ]])]);
-}elseif($msg->text=='نمایش تستی👀'&&$data['users'][$msg->chat->id]['buttons']!=[]){
+}elseif($msg->text=='پیشنمایش پست'&&$data['users'][$msg->chat->id]['buttons']!=[]){
 if($data['code'][$data['users'][$msg->chat->id]['code']]['up']['type']=='photo'){
 send('sendPhoto',[
 'chat_id'=>$msg->chat->id,
@@ -1013,7 +1025,7 @@ $data['users'][$msg->chat->id]['btn']['text'] = $msg->text;
 $data['users'][$msg->chat->id]['command'] = 'new6';
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'نام دکمه رو ارسال کنید✏',
+'text'=>'نام دکمه را وارد کنید:',
 'reply_markup'=>json_encode([
 'remove_keyboard'=>true])]);
 }elseif($data['users'][$msg->chat->id]['command']=='new4'&&$msg->text){
@@ -1023,14 +1035,14 @@ $data['users'][$msg->chat->id]['command'] = 'new6';
 $data['users'][$msg->chat->id]['btn']['url'] = $msg_text;
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'نام دکمه رو ارسال کنید✏',
+'text'=>'نام دکمه را وارد کنید:',
 'reply_markup'=>json_encode([
 'remove_keyboard'=>true])]);
 }else{
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'لینک معتبر نیست⚠
-لینک باید با http:// یا https:// شروع بشه']);
+'text'=>'لینک معتبر نیست!
+لینک باید با http:// یا https:// شروع شود.']);
 }
 }elseif($data['users'][$msg->chat->id]['command']=='new5'&&$msg->message_id){
 $data['users'][$msg->chat->id]['command'] = 'new6';
@@ -1085,36 +1097,36 @@ $msgid = json_decode(send('sendMessage',[
 }else{$nook = true;}if($nook){
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'پیام شما مجاز نیست⛔']);
+'text'=>'پیام مجاز نیست!']);
 }else{flush();
 if($msg->text){
 $data['users'][$msg->chat->id]['btn']['text'] = $msg->text;
 }elseif($msg->caption){
-$data['users'][$msg->chat->id]['btn']['text'] = '<a href="http://telegram.me/'.$botusername.'/'.$msgid.'">‌‌‌</a>'.$msg->caption;
+$data['users'][$msg->chat->id]['btn']['text'] = '<a href="http://t.me/'.$botusername.'/'.$msgid.'">‌‌‌</a>'.$msg->caption;
 }else{
-$data['users'][$msg->chat->id]['btn']['text'] = '<a href="http://telegram.me/'.$botusername.'/'.$msgid.'">‌‌‌</a> ‌‌';}
+$data['users'][$msg->chat->id]['btn']['text'] = '<a href="http://t.me/'.$botusername.'/'.$msgid.'">‌‌‌</a> ‌‌';}
 $data['users'][$msg->chat->id]['command'] = 'new6';
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'نام دکمه رو ارسال کنید✏']);
+'text'=>'نام دکمه را وارد کنید:']);
 }
 }elseif($data['users'][$msg->chat->id]['command']=='new6'&&$msg->text){
 $data['users'][$msg->chat->id]['command'] = 'new9';
 $data['users'][$msg->chat->id]['btn']['name'] = $msg->text;
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'حالا باید مکان دکمه رو بهم بگی✂',
+'text'=>'مکان قرارگیری دکمه کجا باشد؟',
 'reply_markup'=>json_encode([
 'keyboard'=>[
-[['text'=>'تو ردیف قبلی➡️']],
-[['text'=>'ردیف جدید🆕']]
+[['text'=>'ردیف قبلی']],
+[['text'=>'ردیف جدید']]
 ],'resize_keyboard'=>true])]);
 }elseif($data['users'][$msg->chat->id]['command']=='new7'&&$msg->text){
 $data['users'][$msg->chat->id]['btn']['text'] = $msg->text;
 $data['users'][$msg->chat->id]['command'] = 'new6';
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'نام دکمه رو ارسال کنید✏']);
+'text'=>'نام دکمه را وارد کنید:']);
 }elseif($data['users'][$msg->chat->id]['command']=='new8'&&$msg->text){
 if($msg->text=='.'){
 $msg_text = $data['users'][$msg->chat->id]['code'];}else{
@@ -1124,22 +1136,22 @@ $data['users'][$msg->chat->id]['btn']['code'] = $msg_text;
 $data['users'][$msg->chat->id]['command'] = 'new6';
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'حالا اسم دکمه رو واسم بفرست✏']);
+'text'=>'نام دکمه را وارد کنید:']);
 }else{
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'کد موردنظر اشتباه است⛔']);
+'text'=>'کد اشتباه است!']);
 }
 }elseif($data['users'][$msg->chat->id]['command']=='new9'&&$msg->text){
-if($msg->text=='تو ردیف قبلی➡️'){
-}elseif($msg->text=='ردیف جدید🆕'){
+if($msg->text=='ردیف قبلی'){
+}elseif($msg->text=='ردیف جدید'){
 if($data['users'][$msg->chat->id]['buttons']!=[]){
 $data['users'][$msg->chat->id]['btncount']++;
 $data['users'][$msg->chat->id]['buttons'][$data['users'][$msg->chat->id]['btncount']] = [];}
 }else{$nook = true;}if($nook){
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'از دکمه های زیر استفاده کنید⛔']);
+'text'=>'از دکمه های زیر استفاده کنید:']);
 }else{
 $data['users'][$msg->chat->id]['btn']['like'] = 0;
 $data['users'][$msg->chat->id]['btn']['view'] = 0;
@@ -1161,18 +1173,18 @@ $data['users'][$msg->chat->id]['btn'] = [];
 $data['users'][$msg->chat->id]['command'] = 'new2';
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'خوبه! حالا باید انتخاب کنی چه دکمه ای میخوای؟
-اگه دکمه هات تموم شده /done رو بفرست',
+'text'=>'ایجاد شد، حالا باید دکمه بعدی رو انتخاب کنی.
+اگه میخوای پست رو ایجاد کنی، عبارت /done رو بفرست.',
 'reply_markup'=>json_encode([
 'keyboard'=>[
-[['text'=>'نمایش اخطارℹ️']],
-[['text'=>'نمایش پیام💬']],
-[['text'=>'باز کردن لینک🌐']],
-[['text'=>'تغییر پیام✏']],
-[['text'=>'دکمه خالی💢']],
-[['text'=>'پیام به شما📤']],
-[['text'=>'اشتراک گذاری♐️']],
-[['text'=>'نمایش تستی👀'],['text'=>'پایان ساخت✔']]
+[['text'=>'نمایش اخطار']],
+[['text'=>'نمایش پیام']],
+[['text'=>'بازکردن لینک']],
+[['text'=>'ویرایش پیام']],
+[['text'=>'دکمه بدون محتوا']],
+[['text'=>'پیام به شما']],
+[['text'=>'اشتراک گذاری پست']],
+[['text'=>'پیشنمایش پست'],['text'=>'اتمام کار']]
 ],'resize_keyboard'=>true])]);
 $data['users'][$msg->chat->id]['countbtn']++;
 }
