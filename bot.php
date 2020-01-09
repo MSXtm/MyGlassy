@@ -1,4 +1,4 @@
-﻿<?php 
+<?php 
 error_reporting(true);
 flush();
 $botusername = "MyGlassyBot"; // نام کاربری ربات رو بدون @ بزارید
@@ -12,7 +12,7 @@ $edps = $update->edit_channel_post;
 $rply = $msg->reply_to_message;
 flush();
 function send($method,$datas=[]){
-$url = "https://api.telegram.org/bot1022776458:AAENU6uzqDQmdOvxLYtGTi3qodx_nykz9nY/".$method;  // توکن خود را بجای صفر قرار دهید
+$url = "https://api.telegram.org/bot0/".$method;  // توکن خود را بجای صفر قرار دهید
 $ch = curl_init();
 curl_setopt($ch,CURLOPT_URL,$url);
 curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
@@ -52,6 +52,7 @@ $data_gt = file_get_contents($data_ad);
 $data = json_decode($data_gt,true);
 $blocks = 'data/blocks.txt';
 $gblocks = file_get_contents($blocks);
+@mkdir("data/");
 flush();
 
 
