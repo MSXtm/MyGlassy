@@ -115,6 +115,7 @@ send('answerInlineQuery',[
 ]]
 ]])
 ]);
+}
 }elseif($data['code'][$inln->query]['type']=='hid'){
 send('answerInlineQuery',[
 'inline_query_id'=>$inln->id,
