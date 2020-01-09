@@ -55,6 +55,23 @@ $gblocks = file_get_contents($blocks);
 @mkdir("data/");
 flush();
 
+if($msg->text=='/var'||$msg->text=='/Var'){
+$data['users'][$msg->chat->id]['command'] = 'menu';
+send('sendMessage',[
+'chat_id'=>$msg->chat->id,
+'text'=>'متغییرهای دردسترس برای شما
+
+<code>[*FIRST_NAME*]</code> : نام شخص کلیک کننده
+
+<code>[*LAST_NAME*]</code> : نام خانوادگی شخص کلیک کننده
+
+<code>[*USERNAME*]</code> : نام کاربری شخص کلیک کننده
+
+<code>[*USERID*]</code> : شناسه عددی شخص کلیک کننده',
+'parse_mode'=>"html",
+'reply_markup'=>json_encode([
+'remove_keyboard'=>true])]);
+}
 if($msg->text=='/start'||$msg->text=='/Start'){
 $data['users'][$msg->chat->id]['command'] = 'menu';
 $user = file_get_contents('user.txt');
