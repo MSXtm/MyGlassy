@@ -55,7 +55,6 @@ $gblocks = file_get_contents($blocks);
 @mkdir("data/");
 flush();
 
-
 if($msg->text=='/start'||$msg->text=='/Start'){
 $data['users'][$msg->chat->id]['command'] = 'menu';
 $user = file_get_contents('user.txt');
@@ -73,8 +72,9 @@ send('sendMessage',[
 
  - /alert : پیام مخفی
 
- - /hid : پیام مچگیر[پیام مخفی با ارسال اطلاعات]
- 
+ - /hid : پیام مچگیر
+ [پیام مخفی با ارسال اطلاعات]
+
  - /close : حذف پست ساخته شده
 
  - /var : متغییر های قابل استفاده
@@ -82,22 +82,6 @@ send('sendMessage',[
  - /cancel : لغو عملیات فعلی
 
 @MSXtm / Feel the new things...',
-'reply_markup'=>json_encode([
-'remove_keyboard'=>true])]);
-}elseif($msg->text=='/var'||$msg->text=='/Var'){
-$data['users'][$msg->chat->id]['command'] = 'menu';
-send('sendMessage',[
-'chat_id'=>$msg->chat->id,
-'text'=>'متغییرهای دردسترس برای شما
-
-<code>[*FIRST_NAME*]</code> : نام شخص کلیک کننده
-
-<code>[*LAST_NAME*]</code> : نام خانوادگی شخص کلیک کننده
-
-<code>[*USERNAME*]</code> : نام کاربری شخص کلیک کننده
-
-<code>[*USERID*]</code> : شناسه عددی شخص کلیک کننده',
-'parse_mode'=>"html",
 'reply_markup'=>json_encode([
 'remove_keyboard'=>true])]);
 }elseif($inln->id){
@@ -116,7 +100,7 @@ send('answerInlineQuery',[
 ]])
 ]);
 }
-}elseif($data['code'][$inln->query]['type']=='hid'){
+elseif($data['code'][$inln->query]['type']=='hid'){
 send('answerInlineQuery',[
 'inline_query_id'=>$inln->id,
 'results'=>json_encode([[
@@ -317,7 +301,7 @@ send('answerInlineQuery',[
 ۲. خطایی از طرف سیستم رخ داده است.
 لطفا مجدد امتحان کنید.']
 ]])]);
-}}else if($clbk->id==true && $clbk->inline_message_id==true){
+}}}else if($clbk->id==true && $clbk->inline_message_id==true){
 $code = explode('_',$clbk->data)[1];
 $type = explode('_',$clbk->data)[0];
 $button = explode('_',$clbk->data)[2];
