@@ -1,5 +1,5 @@
 # MyGlassy
-Create your own inline buttons :) [Available Language : FA]
+Create your own inline buttons :) [Available Language : EN/FA]
 
 # How to install
 <b>1.</b> Upload the source into your host
