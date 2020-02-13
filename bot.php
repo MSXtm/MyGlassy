@@ -1,7 +1,9 @@
 <?php 
 error_reporting(true);
 flush();
-$botusername = "MyGlassyBot"; // نام کاربری ربات رو بدون @ بزارید
+$token = "123456789:MSX15Awesome"; // Bot's Token
+$botusername = "MyGlassyBot"; // Bot's username without @
+$botid = 123456789; // Bot's ID
 $update = json_decode(file_get_contents('php://input'));
 $msg = $update->message;
 $clbk = $update->callback_query;
@@ -10,9 +12,10 @@ $chps = $update->channel_post;
 $edms = $update->edit_message;
 $edps = $update->edit_channel_post;
 $rply = $msg->reply_to_message;
+define('API_KEY',$token);
 flush();
 function send($method,$datas=[]){
-$url = "https://api.telegram.org/bot0/".$method;  // توکن خود را بجای صفر قرار دهید
+$url = "https://api.telegram.org/bot".API_KEY."/".$method;
 $ch = curl_init();
 curl_setopt($ch,CURLOPT_URL,$url);
 curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
@@ -56,7 +59,206 @@ $gblocks = file_get_contents($blocks);
 flush();
 
 
-if($msg->text=='/ch' ){
+if($msg->text=='/novia'){
+$data['users'][$msg->chat->id]['s2ch'] = 'true';
+if($data['users'][$msg->chat->id]['lang'] == "fa"){
+send('sendMessage',[
+'chat_id'=>$msg->chat->id,
+'text'=>'نام کاربری یا شناسه گروه/کانال تون رو بفرستید. اطمینان پیدا کنین که حتما ربات @MyglassyBot در گروه/کانال شما ادمین باشد.',
+]);
+}
+if($data['users'][$msg->chat->id]['lang'] == "en"){
+send('sendMessage',[
+'chat_id'=>$msg->chat->id,
+'text'=>"Send your channel/group's ID/Username. Make sure that @MyGlassyBot is an admin of your channel/group.",
+]);
+}
+}
+elseif($data['users'][$msg->chat->id]['s2ch'] == 'true' && $msg->text!='/cancel'){
+$achannel = json_decode(file_get_contents("https://api.telegram.org/bot".$token."/getChatMember?chat_id=@".$msg->text."&user_id=".$botid));
+$ach = $achannel->result->status;
+$bchannel = json_decode(file_get_contents("https://api.telegram.org/bot".$token."/getChatMember?chat_id=@".$msg->text."&user_id=".$msg->chat->id));
+$bch = $bchannel->result->status;
+if($ach == 'administrator'){
+if($bch == 'administrator' || $bch == 'creator'){
+$data['users'][$msg->chat->id]['channel'] = $msg->text;
+$data['users'][$msg->chat->id]['s2ch'] = 'post';
+if($data['users'][$msg->chat->id]['lang'] == "fa"){
+send('sendMessage',[
+'chat_id'=>$msg->chat->id,
+'text'=>'پست موردنظری که درون ربات هست را وارد کنید، این پست حتما باید درون ربات باشد و تمامی دکمه های پست تنها باید حاوی لینک باشند و اگر دکمه دیگری غیر از بازکردن لینک استفاده کرده باشید، پست ارسال نخواهد شد زیرا ربات داده های دیگر را جهت ارسال مستقیم به کانال/گروه پشتیبانی نمی کند!',
+]);
+}
+if($data['users'][$msg->chat->id]['lang'] == "en"){
+send('sendMessage',[
+'chat_id'=>$msg->chat->id,
+'text'=>"Send your post's ID, this post id should be a post that is made by this bot and all the inline-buttons should 'open URL' and If not, Bot won't send your post to your channel/group.",
+]);
+}
+}else{
+if($data['users'][$msg->chat->id]['lang'] == "fa"){
+send('sendMessage',[
+'chat_id'=>$msg->chat->id,
+'text'=>'شما مدیر این کانال/گروه نیستید و نمیتوانید پستی بگذارید! کانال/گروه دیگری را امتحان کنید.',
+]);
+}
+if($data['users'][$msg->chat->id]['lang'] == "en"){
+send('sendMessage',[
+'chat_id'=>$msg->chat->id,
+'text'=>'You are not the owner or one of the administrators of this channel/group! Try something else:',
+]);
+}
+}
+}else{
+if($data['users'][$msg->chat->id]['lang'] == "fa"){
+send('sendMessage',[
+'chat_id'=>$msg->chat->id,
+'text'=>'خطا! ما حدس میزنیم که دو عامل میتواند باعث بروز خطا شده باشد:
+۱. آدرس کانال/گروه اشتباه وارد شده است.
+۲. ربات در کانال/گروه شما ادمین نیست.
+
+درصورت بررسی مجدد، دوباره ایدی یا نام کاربری گروه/کانال تون رو بفرستید.',
+]);
+}
+if($data['users'][$msg->chat->id]['lang'] == "en"){
+send('sendMessage',[
+'chat_id'=>$msg->chat->id,
+'text'=>'Error! We guess that these may be the reason for error:
+1. Group/Channel that you sent is wrong.
+2. Bot is not one of the administrators of your channel/group.
+
+If you think that you have been realized the problem, Try Again:',
+]);
+}
+}
+}
+elseif($data['users'][$msg->chat->id]['s2ch'] == 'post' && $msg->text!='/cancel'){
+if($data['code'][$msg->text]['up']['type']){
+$channel = $data['users'][$msg->chat->id]['channel'];
+$data['users'][$msg->chat->id]['s2ch'] = 'none';
+$text = $data['code'][$msg->text]['up']['text'];
+$key_text = $data['code'][$msg->text]['keyboard'];
+if($data['code'][$msg->text]['up']['type']=='text'){
+send('sendMessage',[
+'chat_id'=>$channel,
+'text'=>$text,
+'parse_mode'=>'HTML',
+'reply_markup'=>json_encode(['inline_keyboard'=>$key_text
+])]);
+}
+elseif($data['code'][$msg->text]['up']['type']=='photo'){
+if($data['code'][$msg->text]['up']['text']){
+send('sendPhoto',[
+'chat_id'=>$channel,
+'photo'=>$data['code'][$msg->text]['up']['address'],
+'caption'=>$text,
+'reply_markup'=>json_encode([
+'inline_keyboard'=>$key_text
+])]);
+}else{
+send('sendPhoto',[
+'chat_id'=>$channel,
+'photo'=>$data['code'][$msg->text]['up']['address'],
+'reply_markup'=>json_encode([
+'inline_keyboard'=>$key_text
+])]);
+}
+}
+elseif($data['code'][$msg->text]['up']['type']=='voice'){
+send('sendVoice',[
+'chat_id'=>$channel,
+'voice'=>$data['code'][$msg->text]['up']['address'],
+'reply_markup'=>json_encode([
+'inline_keyboard'=>$key_text
+])]);
+}
+elseif($data['code'][$msg->text]['up']['type']=='video'){
+if($data['code'][$inln->query]['up']['text']){
+send('sendVideo',[
+'chat_id'=>$channel,
+'video'=>$data['code'][$msg->text]['up']['address'],
+'caption'=>$text,
+'reply_markup'=>json_encode([
+'inline_keyboard'=>$key_text
+])]);
+}else{
+send('sendVideo',[
+'chat_id'=>$channel,
+'video'=>$data['code'][$msg->text]['up']['address'],
+'reply_markup'=>json_encode([
+'inline_keyboard'=>$key_text
+])]);
+}
+}
+elseif($data['code'][$msg->text]['up']['type']=='audio'){
+if($data['code'][$msg->text]['up']['text']){
+send('sendAudio',[
+'chat_id'=>$channel,
+'audio'=>$data['code'][$msg->text]['up']['address'],
+'caption'=>$text,
+'reply_markup'=>json_encode([
+'inline_keyboard'=>$key_text
+])]);}
+else{
+send('sendAudio',[
+'chat_id'=>$channel,
+'audio'=>$data['code'][$msg->text]['up']['address'],
+'reply_markup'=>json_encode([
+'inline_keyboard'=>$key_text
+])]);}
+}
+elseif($data['code'][$msg->text]['up']['type']=='sticker'){
+send('sendSticker',[
+'chat_id'=>$channel,
+'sticker'=>$data['code'][$msg->text]['up']['address'],
+'reply_markup'=>json_encode([
+'inline_keyboard'=>$key_text
+])]);
+}
+elseif($data['code'][$msg->text]['up']['type']=='document'){
+if($data['code'][$msg->text]['up']['text']){
+send('sendDocument',[
+'chat_id'=>$channel,
+'document'=>$data['code'][$msg->text]['up']['address'],
+'caption'=>$text,
+'reply_markup'=>json_encode([
+'inline_keyboard'=>$key_text
+])]);
+}else{
+send('sendDocument',[
+'chat_id'=>$channel,
+'document'=>$data['code'][$msg->text]['up']['address'],
+'reply_markup'=>json_encode([
+'inline_keyboard'=>$key_text
+])]);
+}
+}
+if($data['users'][$msg->chat->id]['lang'] == "fa"){
+send('sendMessage',[
+'chat_id'=>$msg->chat->id,
+'text'=>"انجام شد! (اگر پستتون رو در کانال/گروهتون مشاهده نکردید، بدانید که پست شما تنها حاوی دکمه های لینک دار نبوده است و به همین دلیل ربات پست شما را ارسال نکرده است)"]);
+}
+if($data['users'][$msg->chat->id]['lang'] == "en"){
+send('sendMessage',[
+'chat_id'=>$msg->chat->id,
+'text'=>"Done! (If your post has been not send, it means that you used forbidden button... Only buttons that can be send are 'open url' buttons)"]);
+}
+}else{
+if($data['users'][$msg->chat->id]['lang'] == "fa"){
+send('sendMessage',[
+'chat_id'=>$msg->chat->id,
+'text'=>"کد شما اشتباه است! مجددا امتحان کنید:",
+'parse_mode'=>'HTML',]);
+}
+if($data['users'][$msg->chat->id]['lang'] == "en"){
+send('sendMessage',[
+'chat_id'=>$msg->chat->id,
+'text'=>"Your code is wrong! Try again:",
+'parse_mode'=>'HTML',]);
+}
+}
+}
+elseif($msg->text=='/ch' ){
 $data['users'][$msg->chat->id]['lang'] = '';
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
@@ -68,7 +270,7 @@ send('sendMessage',[
 [['text'=>"🇺🇸 English"],['text'=>"🇮🇷 فارسی"]]
 ]])]);
 }
-if($msg->text=='🇮🇷 فارسی' && $data['users'][$msg->chat->id]['lang'] != 'fa' && $data['users'][$msg->chat->id]['lang'] != 'en'){
+elseif($msg->text=='🇮🇷 فارسی' && $data['users'][$msg->chat->id]['lang'] != 'fa' && $data['users'][$msg->chat->id]['lang'] != 'en'){
 $data['users'][$msg->chat->id]['lang'] = 'fa';
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
@@ -85,6 +287,8 @@ send('sendMessage',[
 
  - /var : متغییر های قابل استفاده
 
+ - /novia : ارسال مستقیم پست
+
  - /cancel : لغو عملیات فعلی
 
  - /ch : 🇮🇷/🇺🇸
@@ -95,7 +299,7 @@ send('sendMessage',[
 'remove_keyboard'=>true])
 ]);
 }
-if($msg->text=='🇺🇸 English' && $data['users'][$msg->chat->id]['lang'] != 'fa' && $data['users'][$msg->chat->id]['lang'] != 'en'){
+elseif($msg->text=='🇺🇸 English' && $data['users'][$msg->chat->id]['lang'] != 'fa' && $data['users'][$msg->chat->id]['lang'] != 'en'){
 $data['users'][$msg->chat->id]['lang'] = 'en';
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
@@ -111,6 +315,8 @@ send('sendMessage',[
 
  - /var : Available variables
 
+ - /novia : Send your post without via
+
  - /cancel : Call-off current process
 
  - /ch : 🇮🇷/🇺🇸
@@ -121,7 +327,7 @@ send('sendMessage',[
 'remove_keyboard'=>true])
 ]);
 }
-if($msg->text=='/var'||$msg->text=='/Var'){
+elseif($msg->text=='/var'||$msg->text=='/Var'){
 $data['users'][$msg->chat->id]['command'] = 'menu';
 if($data['users'][$msg->chat->id]['lang'] == 'fa'){
 send('sendMessage',[
@@ -139,7 +345,7 @@ send('sendMessage',[
 'reply_markup'=>json_encode([
 'remove_keyboard'=>true])]);
 }
-if($data['users'][$msg->chat->id]['lang'] == 'en'){
+elseif($data['users'][$msg->chat->id]['lang'] == 'en'){
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
 'text'=>'Available Variables
@@ -192,6 +398,8 @@ send('sendMessage',[
 
  - /var : متغییر های قابل استفاده
 
+ - /novia : ارسال مستقیم پست
+
  - /cancel : لغو عملیات فعلی
 
  - /ch : 🇮🇷/🇺🇸
@@ -215,6 +423,8 @@ send('sendMessage',[
 
  - /var : Available variables
 
+ - /novia : Send your post without via
+
  - /cancel : Call-off current process
 
  - /ch : 🇮🇷/🇺🇸
@@ -223,7 +433,8 @@ send('sendMessage',[
 'reply_markup'=>json_encode([
 'remove_keyboard'=>true])]);
 }
-}elseif($inln->id){
+}
+elseif($inln->id){
 if($data['code'][$inln->query]['type']=='alert'){
 if($data['users'][$data['code'][$inln->query]['from']['id']]['lang'] == 'en'){
 send('answerInlineQuery',[
@@ -936,6 +1147,7 @@ send('editMessageCaption',[
 }
 }elseif($msg->text=='/cancel'){
 $data['users'][$msg->chat->id]['command'] = 'menu';
+$data['users'][$msg->chat->id]['s2ch'] = 'none';
 if($data['users'][$msg->chat->id]['lang'] == 'fa'){
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
@@ -955,12 +1167,16 @@ $data['users'][$msg->chat->id]['command'] = 'close';
 if($data['users'][$msg->chat->id]['lang'] == 'fa'){
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>'کد پست خودتون رو جهت حذف شدن بفرستید.']);
+'text'=>'کد پست خودتون رو جهت حذف شدن بفرستید.',
+'reply_markup'=>json_encode([
+'remove_keyboard'=>true])]);
 }
 if($data['users'][$msg->chat->id]['lang'] == 'en'){
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
-'text'=>"Enter your post's code to close(delete) it."]);
+'text'=>"Enter your post's code to close(delete) it.",
+'reply_markup'=>json_encode([
+'remove_keyboard'=>true])]);
 }
 }elseif($msg->text&&$data['users'][$msg->chat->id]['command']=='close'){
 if($data['code'][$msg->text]['from']['id']){
@@ -1242,7 +1458,7 @@ send('sendMessage',[
 'reply_markup'=>json_encode([
 'remove_keyboard'=>true])]);
 }
-if($data['users'][$msg->chat->id]['lang'] == 'fa'){
+if($data['users'][$msg->chat->id]['lang'] == 'en'){
 send('sendMessage',[
 'chat_id'=>$msg->chat->id,
 'text'=>'Send your URL:',
