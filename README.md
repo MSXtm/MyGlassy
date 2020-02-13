@@ -6,9 +6,10 @@ Create your own inline buttons :) [Available Language : EN/FA]
 Like this directory : <code>/public_html/glassy</code><br />
 
 <b>2.</b> Now we edit <code>bot.php</code><br />
-Put your token in line 15.<br />
-Pou should change '0' to your own bot's token.<br />
-Then you have to put your bot's username[WITHOUT @] in line 4, instead of "MyGlassyBot".<br />
+Put your token in line 4.<br />
+You need to change '123456789:MSX15Awesome' to your own bot's token.<br />
+Next you should put your bot's username[WITHOUT @] in line 5, instead of "MyGlassyBot".<br />
+Then you have to put your bot's ID in line 6, instead of "123456789".<br />
 Now you're done with your bot's config.<br />
 
 <b>3.</b> Now you should setwebhook, <br />
